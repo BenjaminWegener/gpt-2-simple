@@ -134,7 +134,7 @@ def finetune(sess,
              learning_rate=0.0001,
              accumulate_gradients=5,
              restore_from='latest',
-             run_name='',
+             run_name='run1',
              checkpoint_dir='checkpoint',
              sample_every=100,
              sample_length=1023,
@@ -363,7 +363,7 @@ def finetune(sess,
 
 def load_gpt2(sess,
               checkpoint='latest',
-              run_name="",
+              run_name="run1",
               checkpoint_dir="checkpoint",
               model_name=None,
               model_dir='models',
@@ -405,7 +405,7 @@ def load_gpt2(sess,
 
 
 def generate(sess,
-             run_name='',
+             run_name='run1',
              checkpoint_dir='checkpoint',
              model_name=None,
              model_dir='models',
@@ -569,7 +569,7 @@ def generate(sess,
 
 
 def generate_to_file(sess,
-                     run_name='',
+                     run_name='run1',
                      checkpoint_dir='checkpoint',
                      model_name=None,
                      model_dir='models',
@@ -633,7 +633,7 @@ def get_tarfile_name(checkpoint_folder):
     return tarfile_name
 
 
-def copy_checkpoint_to_gdrive(run_name='', copy_folder=False):
+def copy_checkpoint_to_gdrive(run_name='run1', copy_folder=False):
     """Copies the checkpoint folder to a mounted Google Drive."""
     is_mounted()
 
@@ -651,7 +651,7 @@ def copy_checkpoint_to_gdrive(run_name='', copy_folder=False):
         shutil.copyfile(file_path, "/content/drive/My Drive/" + file_path)
 
 
-def copy_checkpoint_from_gdrive(run_name='', copy_folder=False):
+def copy_checkpoint_from_gdrive(run_name='run1', copy_folder=False):
     """Copies the checkpoint folder from a mounted Google Drive."""
     is_mounted()
 
@@ -739,7 +739,7 @@ def cmd():
         '--mode', help='Mode for using the CLI (either "finetune" or "generate") [Required]', nargs='?')
     parser.add_argument(
         '--run_name',  help="[finetune/generate] Run number to save/load the model",
-        nargs='?', default='')
+        nargs='?', default='run1')
     parser.add_argument(
         '--checkpoint_dir', help="[finetune] Path of the checkpoint directory",
         nargs='?', default='checkpoint')
