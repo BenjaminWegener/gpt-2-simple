@@ -57,7 +57,7 @@ def gelu(x):
 
 def norm(x, scope, *, axis=-1, epsilon=1e-5):
     """Normalize to mean = 0, std = 1, then do a diagonal affine transform."""
-    with tf.compat.v1.variable_scope(scope, reuse = tf.compat.v1.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(scope):
         n_state = x.shape[-1].value
         g = tf.compat.v1.get_variable('g', [n_state], initializer=tf.compat.v1.constant_initializer(1))
         b = tf.compat.v1.get_variable('b', [n_state], initializer=tf.compat.v1.constant_initializer(0))
@@ -78,7 +78,7 @@ def merge_states(x):
     return tf.reshape(x, start + [a*b])
 
 def conv1d(x, scope, nf, *, w_init_stdev=0.02):
-    with tf.compat.v1.variable_scope(scope, reuse = tf.compat.v1.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(scope):
         *start, nx = shape_list(x)
         w = tf.compat.v1.get_variable('w', [1, nx, nf], initializer=tf.compat.v1.random_normal_initializer(stddev=w_init_stdev))
         b = tf.compat.v1.get_variable('b', [nf], initializer=tf.compat.v1.constant_initializer(0))
@@ -128,7 +128,7 @@ def attn(x, scope, n_state, *, past, hparams):
         a = tf.matmul(w, v)
         return a
 
-    with tf.compat.v1.variable_scope(scope, reuse = tf.compat.v1.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(scope):
         c = conv1d(x, 'c_attn', n_state*3)
         q, k, v = map(split_heads, tf.split(c, 3, axis=2))
         present = tf.stack([k, v], axis=1)
@@ -143,7 +143,7 @@ def attn(x, scope, n_state, *, past, hparams):
 
 
 def mlp(x, scope, n_state, *, hparams):
-    with tf.compat.v1.variable_scope(scope, reuse = tf.compat.v1.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(scope):
         nx = x.shape[-1].value
         h = gelu(conv1d(x, 'c_fc', n_state))
         h2 = conv1d(h, 'c_proj', nx)
@@ -151,7 +151,7 @@ def mlp(x, scope, n_state, *, hparams):
 
 
 def block(x, scope, *, past, hparams):
-    with tf.compat.v1.variable_scope(scope, reuse = tf.compat.v1.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(scope):
         nx = x.shape[-1].value
         a, present = attn(norm(x, 'ln_1'), 'attn', nx, past=past, hparams=hparams)
         x = x + a
@@ -174,7 +174,7 @@ def positions_for(tokens, past_length):
     return expand_tile(past_length + tf.range(nsteps), batch_size)
 
 
-def model(hparams, X, past=None, scope='model', gpus=[], reuse=tf.compat.v1.AUTO_REUSE):
+def model(hparams, X, past=None, scope='model', gpus=[], reuse=False):
     with tf.compat.v1.variable_scope(scope, reuse=reuse):
         results = {}
         batch, sequence = shape_list(X)
