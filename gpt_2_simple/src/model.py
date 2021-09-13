@@ -120,7 +120,7 @@ def attn(x, scope, n_state, *, past, hparams):
 
     def multihead_attn(q, k, v):
         # q, k, v have shape [batch, heads, sequence, features]
-        initializer = tf.compat.v1.initializers.he_normal(seed=none)
+        initializer = tf.compat.v1.initializers.he_normal(seed=1337)
         k_t = tf.transpose(k)
         v_t = tf.transpose(v)
         e = tf.compat.v1.layers.dense(k_t, units=k.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
