@@ -120,13 +120,22 @@ def attn(x, scope, n_state, *, past, hparams):
 
     def multihead_attn(q, k, v):
         # q, k, v have shape [batch, heads, sequence, features]
-        w = tf.matmul(q, k, transpose_b=True)
-        w = w * tf.math.rsqrt(tf.cast(v.shape[-1].value, w.dtype))
-
-        w = mask_attn_weights(w)
-        w = softmax(w)
-        a = tf.matmul(w, v)
-        return a
+        initializer = tf.compat.v1.initializers.he_normal(seed=none)
+        k_t = tf.transpose(k)
+        v_t = tf.transpose(v)
+        e = tf.compat.v1.layers.dense(k_t, units=k.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
+        f = tf.compat.v1.layers.dense(v_t, units=v.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
+        qk = tf.matmul(q, e)
+        p_bar = tf.math.divide(qk, tf.math.rsqrt(tf.cast(q.shape[-1].value, q.dtype)))
+        causal_mask = tf.transpose(tf.linalg.band_part(tf.ones([q.shape[-1].value, q.shape[-2].value]), 0, -1))
+        infinity_mask = tf.math.subtract(causal_mask, 1)
+        infinity_mask = tf.math.multiply(infinity_mask, 1e16)
+        p_bar = tf.math.multiply(p_bar, causal_mask)
+        p_bar = tf.math.add(p_bar, infinity_mask)
+        p_bar = tf.nn.softmax(p_bar, 2)
+        p_bar = tf.matmul(p_bar, f, transpose_b=True)
+        qkv = tf.matmul(qkv, f, transpose_b=True)
+        return qkv
 
     with tf.compat.v1.variable_scope(scope):
         c = conv1d(x, 'c_attn', n_state*3)
