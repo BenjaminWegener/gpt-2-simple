@@ -127,8 +127,8 @@ def attn(x, scope, n_state, *, past, hparams):
         v_t = tf.reshape(v_t, [v_t.shape[0].value, v_t.shape[1].value, v_t.shape[2].value, hparams.n_ctx])
                               
         print(k_t.shape)
-        e = tf.compat.v1.layers.dense(k_t, units=k.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
-        f = tf.compat.v1.layers.dense(v_t, units=v.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
+        e = tf.layers.Dense(k_t, units=k.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
+        f = tf.layers.Dense(v_t, units=v.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
         qk = tf.matmul(q, e)
         p_bar = tf.math.divide(qk, tf.math.rsqrt(tf.cast(q.shape[-1].value, q.dtype)))
         causal_mask = tf.transpose(tf.linalg.band_part(tf.ones([q.shape[-1].value, q.shape[-2].value]), 0, -1))
