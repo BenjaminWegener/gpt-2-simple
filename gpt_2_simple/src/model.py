@@ -53,7 +53,7 @@ def softmax(x, axis=-1):
     return ex / tf.reduce_sum(input_tensor=ex, axis=axis, keepdims=True)
 
 def gelu(x):
-    return 0.5*x*(1+tf.tanh(np.sqrt(2/np.pi)*(x+0.044715*tf.pow(x, 3))))
+    return 0.5*x*(1+tf.tanh(0.797884*(x+0.044715*tf.pow(x, 3)))) #sqrt(2/pi) = 0.797884
 
 def norm(x, scope, *, axis=-1, epsilon=1e-5):
     """Normalize to mean = 0, std = 1, then do a diagonal affine transform."""
@@ -123,6 +123,9 @@ def attn(x, scope, n_state, *, past, hparams):
         initializer = tf.compat.v1.initializers.he_normal(seed=1337)
         k_t = tf.transpose(k, perm=[0,1,3,2])
         v_t = tf.transpose(v, perm=[0,1,3,2])
+        k_t = tf.reshape(k_t, [k_t.shape[0].value, k_t.shape[1].value, k_t.shape[2].value, 1024)
+        v_t = tf.reshape(v_t, [v_t.shape[0].value, v_t.shape[1].value, v_t.shape[2].value, 1024)
+                              
         print(k_t.shape)
         e = tf.compat.v1.layers.dense(k_t, units=k.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
         f = tf.compat.v1.layers.dense(v_t, units=v.shape[-1].value, kernel_initializer=initializer, bias_initializer=initializer)
