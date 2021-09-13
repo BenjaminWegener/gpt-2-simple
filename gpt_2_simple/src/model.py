@@ -134,7 +134,7 @@ def attn(x, scope, n_state, *, past, hparams):
         p_bar = tf.math.add(p_bar, infinity_mask)
         p_bar = tf.nn.softmax(p_bar, 2)
         p_bar = tf.matmul(p_bar, f, transpose_b=True)
-        qkv = tf.matmul(qkv, f, transpose_b=True)
+        qkv = tf.matmul(p_bar, f, transpose_b=True)
         return qkv
 
     with tf.compat.v1.variable_scope(scope):
